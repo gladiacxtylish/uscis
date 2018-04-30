@@ -24,12 +24,12 @@ Promise
   .all(receipts.map(c => (
     caseStatus(c).catch((err) => err)
   )))
-  // .then((statusList) => {
-  //   if (argv.o) {
-  //     fs.writeFileSync(util.format('%s_%s_%s.txt', receipt, length, now.toISOString()), JSON.stringify(statusList, null, 2));
-  //   }
-  //   return statusList;
-  // })
+  .then((statusList) => {
+    if (argv.o) {
+      fs.writeFileSync(util.format('%s_%s_%s.txt', receipt, length, now.toISOString()), JSON.stringify(statusList, null, 2));
+    }
+    return statusList;
+  })
   .then(statusList => {
     statusList.forEach((status, i) => {
       console.log(status.receipt.green);
