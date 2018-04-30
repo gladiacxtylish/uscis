@@ -26,7 +26,8 @@ Promise
   )))
   .then((statusList) => {
     if (argv.o) {
-      fs.writeFileSync(util.format('%s_%s_%s.txt', receipt, length, now.toISOString()), JSON.stringify(statusList, null, 2));
+      let date = now.toISOString().replace(/[\-T:.]/g, '_').replace(/[Z]/g, '');
+      fs.writeFileSync(util.format('%s_%s_%s.txt', receipt, length, date), JSON.stringify(statusList, null, 2));
     }
     return statusList;
   })
