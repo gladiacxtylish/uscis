@@ -11,9 +11,8 @@ var fs = require('fs');
 var util = require('util');
 
 if (argv.a) {
-  console.log(argv);
   let files = argv['--'];
-  Promise.all()
+  uscis.analyze(files);
   return;
 }
 
@@ -35,19 +34,19 @@ Promise
     if (argv.o) {
       let date = now.toISOString().replace(/[\-T:.]/g, '_').replace(/[Z]/g, '');
       let filename = util.format('%s_%s_%s.txt', receipt, length, date);
-      let data = {receipt: receipt, length: length, data: statusList};
-      fs.writeFileSync(filename, JSON.stringify(data, null, 2));
+      let filter = _.filter(statusList, (i) => !(i instanceof Error));
+      let data = {receipt: receipt, length: length, date: now, data: filter};
       console.log('Output to file ' + filename);
       console.log()
-      fs.writeFileSync(filename, JSON.stringify(statusList, null, 2));
+      fs.writeFileSync(filename, JSON.stringify(data, null, 2));
     }
     return statusList;
   })
   .then(statusList => {
     statusList.forEach((status, i) => {
-      console.log(status.receipt.green);
-
+      
       if (!(status instanceof Error)) {
+        console.log(status.receipt.green);
         let formMatch = status.content.match(/Form \w-\w+/);
         if (formMatch) {
           console.log(formMatch[0].yellow);
@@ -55,10 +54,10 @@ Promise
         console.log('=> ' + status.title.blue.bold);
         console.log(`=> ${status.content}`);
       } else {
+        console.log(receipts[i].green)
         console.log(`Error: ${status.message}`.red);
       }
-
       console.log();
     })
   })
-  .catch(err => console.log(err.message.red))
+  .catch(err => console.log(err.message.red));
