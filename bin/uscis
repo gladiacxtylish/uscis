@@ -2,14 +2,20 @@
 
 'use strict'
 
-var argv = require('minimist')(process.argv.slice(2));
+var argv = require('minimist')(process.argv.slice(2), {'--': true});
 var colors = require('colors');
 var _ = require('lodash');
-var caseStatus = require('../lib/case-status');
+var uscis = require('../lib/uscis');
 var pkg = require('../package');
 var fs = require('fs');
 var util = require('util');
 
+if (argv.a) {
+  console.log(argv);
+  let files = argv['--'];
+  Promise.all()
+  return;
+}
 
 const receipt = argv.r;
 const length = parseInt(argv.l);
@@ -20,15 +26,20 @@ const receipts = _.range(receiptNum, receiptNum + length).map(r => receipt.subst
 console.log(now.toISOString());
 console.log()
 
+
 Promise
   .all(receipts.map(c => (
-    caseStatus(c).catch((err) => err)
+    uscis.caseStatus(c).catch((err) => err)
   )))
   .then((statusList) => {
     if (argv.o) {
       let date = now.toISOString().replace(/[\-T:.]/g, '_').replace(/[Z]/g, '');
+      let filename = util.format('%s_%s_%s.txt', receipt, length, date);
       let data = {receipt: receipt, length: length, data: statusList};
-      fs.writeFileSync(util.format('%s_%s_%s.txt', receipt, length, date), JSON.stringify(data, null, 2));
+      fs.writeFileSync(filename, JSON.stringify(data, null, 2));
+      console.log('Output to file ' + filename);
+      console.log()
+      fs.writeFileSync(filename, JSON.stringify(statusList, null, 2));
     }
     return statusList;
   })
@@ -47,9 +58,7 @@ Promise
         console.log(`Error: ${status.message}`.red);
       }
 
-      if (i !== statusList.length - 1) {
-        console.log();
-      }
+      console.log();
     })
   })
   .catch(err => console.log(err.message.red))
