@@ -70,7 +70,11 @@ Promise
           }
         }
       });
-      fs.writeFileSync('all.txt', JSON.stringify(data, null, 2));
+      let dataOrdered = {};
+      Object.keys(data).sort().forEach((key) => {
+        dataOrdered[key] = data[key];
+      });
+      fs.writeFileSync('all.txt', JSON.stringify(dataOrdered, null, 2));
     }
     return statusList;
   })
