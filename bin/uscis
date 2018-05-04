@@ -50,9 +50,32 @@ Promise
     }
     return statusList;
   })
-  .then(statusList => {
+  .then((statusList) => {
+    if (argv.p) {
+      let data = null;
+      if (fs.existsSync('all.txt')) {
+        let file = fs.readFileSync('all.txt', 'utf8');
+        data = JSON.parse(file);
+      }
+      else {
+        data = {};
+      }
+      statusList.forEach((status, i) => {
+        if (!(status instanceof Error)) {
+          if (!data[status.receipt]) {
+            data[status.receipt] = [];
+          }
+          if (!_.find(data[status.receipt], {title: status.title, content: status.content})) {
+            data[status.receipt].push(status);
+          }
+        }
+      });
+      fs.writeFileSync('all.txt', JSON.stringify(data, null, 2));
+    }
+    return statusList;
+  })
+  .then((statusList) => {
     statusList.forEach((status, i) => {
-      
       if (!(status instanceof Error)) {
         console.log(status.receipt.green);
         let formMatch = status.content.match(/Form \w-\w+/);
