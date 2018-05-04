@@ -10,21 +10,29 @@ var pkg = require('../package');
 var fs = require('fs');
 var util = require('util');
 
+const now = new Date();
+
 if (argv.a) {
   let files = argv['--'];
-  uscis.analyze(files);
+  uscis.analyze(files)
+  .then((data) => {
+    if (argv.o) {
+      let date = now.toISOString().replace(/[\-T:.]/g, '_').replace(/[Z]/g, '');
+      let filename = util.format('analyze_%s.txt', date);
+      fs.writeFileSync(filename, JSON.stringify(data, null, 2));
+    }
+    console.log(data);
+  });
   return;
 }
 
 const receipt = argv.r;
 const length = parseInt(argv.l);
-const now = new Date();
 const receiptNum = parseInt(receipt.substring(3));
 const receipts = _.range(receiptNum, receiptNum + length).map(r => receipt.substr(0, 3) + r);
 
 console.log(now.toISOString());
 console.log()
-
 
 Promise
   .all(receipts.map(c => (
