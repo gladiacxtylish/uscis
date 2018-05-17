@@ -26,6 +26,24 @@ if (argv.a) {
   return;
 }
 
+if (argv.d) {
+  if (!fs.existsSync('all.txt')) {
+    console.log('File all.txt does not exist'.red);
+  }
+  let file = fs.readFileSync('all.txt', 'utf8');
+  let data = JSON.parse(file);
+  for (var key in data) {
+    if (data.hasOwnProperty(key)) {
+      if (data[key].length > 1) {
+        console.log(key.green);
+        console.log(data[key]);
+        console.log();
+      }
+    }
+  }
+  return;
+}
+
 const receipt = argv.r;
 const length = parseInt(argv.l);
 const receiptNum = parseInt(receipt.substring(3));
